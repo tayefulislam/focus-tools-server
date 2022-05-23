@@ -36,6 +36,12 @@ async function run() {
         const itemCollection = client.db("FocusTools").collection("items");
 
 
+        //get all item 
+        app.get('/items', async (req, res) => {
+
+            const result = await itemCollection.find().toArray()
+            res.send(result)
+        })
 
 
         //insert item api
