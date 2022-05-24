@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { async } = require("@firebase/util");
 
 
 const app = express();
@@ -83,6 +84,18 @@ async function run() {
             const result = await orderCollection.insertOne(order)
             res.send(result)
         })
+
+        // get orders my email;
+
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email }
+            const result = await orderCollection.find(query).toArray()
+            res.send(result)
+        })
+
+
+
 
 
 
