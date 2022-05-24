@@ -34,6 +34,7 @@ async function run() {
         await client.connect()
 
         const itemCollection = client.db("FocusTools").collection("items");
+        const orderCollection = client.db("FocusTools").collection("orders");
 
 
         //get all item 
@@ -43,7 +44,9 @@ async function run() {
             res.send(result)
         })
 
-        // get singel item by id 
+
+
+        // get singel item by id  
 
         app.get('/item/:id', async (req, res) => {
             const id = req.params.id;
@@ -68,6 +71,17 @@ async function run() {
             res.send(result)
 
 
+        })
+
+
+        // place order api
+
+
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+
+            const result = await orderCollection.insertOne(order)
+            res.send(result)
         })
 
 
