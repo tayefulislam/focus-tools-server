@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { async } = require("@firebase/util");
+
 
 
 const app = express();
@@ -37,6 +38,41 @@ async function run() {
         const itemCollection = client.db("FocusTools").collection("items");
         const orderCollection = client.db("FocusTools").collection("orders");
         const reviewCollection = client.db("FocusTools").collection("reviews");
+        const userCollection = client.db("FocusTools").collection("users");
+
+
+
+        // make new user and asign token
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+
+            console.log(user)
+
+            const filter = { userEmail: email };
+
+            const options = { upsert: true };
+
+            const updateDoc = {
+
+                $set: user,
+
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options)
+
+            const token = jwt.sign(user, process.env.secretKey, { expiresIn: '1d' });
+
+
+
+            res.send({ result, token })
+
+
+
+
+        })
+
+
 
 
         //get all item 
