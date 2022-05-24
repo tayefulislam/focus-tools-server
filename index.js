@@ -36,6 +36,7 @@ async function run() {
 
         const itemCollection = client.db("FocusTools").collection("items");
         const orderCollection = client.db("FocusTools").collection("orders");
+        const reviewCollection = client.db("FocusTools").collection("reviews");
 
 
         //get all item 
@@ -95,7 +96,9 @@ async function run() {
         })
 
 
-        app.delete('/order/delete/:id', async (req, res) => {
+        // delete order (user)
+
+        app.post('/order/delete/:id', async (req, res) => {
 
 
             const id = req.params.id;
@@ -103,6 +106,21 @@ async function run() {
             const result = await orderCollection.deleteOne(query);
             res.send(result)
 
+
+
+        })
+
+
+        // add / update review 
+
+        app.post('/updateReview/:email', async (req, res) => {
+            const email = req.params.email;
+            const review = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = { $set: review };
+            const result = await reviewCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
 
 
         })
