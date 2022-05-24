@@ -23,11 +23,43 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
-//   client.close();
-// });
+
+// function verifyJWT
+
+
+function verifyJWT(req, res, next) {
+
+    const authentication = req.headers.authentication;
+
+    const token = authentication.split(' ')[1]
+
+    // if (!token) {
+
+    //     return res.status(401).send('Unauthorized')
+
+
+    // }
+
+
+    jwt.verify(token, process.env.secretKey, function (err, decoded) {
+
+        if (err) {
+
+            return res.status(403).send('Forbidden')
+        }
+
+        req.decoded = decoded
+
+        console.log(decoded)
+
+        next()
+
+    });
+
+
+}
+
+
 
 async function run() {
     try {
@@ -42,40 +74,6 @@ async function run() {
 
 
 
-        // function verifyJWT
-
-
-        function verifyJWT(req, res, next) {
-
-            const authentication = req.headers.authentication;
-
-            const token = authentication.split(' ')[1]
-
-            // if (!token) {
-
-            //     return res.status(401).send('Unauthorized')
-
-
-            // }
-
-
-            jwt.verify(token, process.env.secretKey, function (err, decoded) {
-
-                if (err) {
-
-                    return res.status(403).send('Forbidden')
-                }
-
-                req.decoded = decoded
-
-                console.log(decoded)
-
-                next()
-
-            });
-
-
-        }
 
 
         // make new user and asign token
