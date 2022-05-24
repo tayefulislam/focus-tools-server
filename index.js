@@ -42,6 +42,42 @@ async function run() {
 
 
 
+        // function verifyJWT
+
+
+        function verifyJWT(req, res, next) {
+
+            const authentication = req.headers.authentication;
+
+            const token = authentication.split(' ')[1]
+
+            // if (!token) {
+
+            //     return res.status(401).send('Unauthorized')
+
+
+            // }
+
+
+            jwt.verify(token, process.env.secretKey, function (err, decoded) {
+
+                if (err) {
+
+                    return res.status(403).send('Forbidden')
+                }
+
+                req.decoded = decoded
+
+                console.log(decoded)
+
+                next()
+
+            });
+
+
+        }
+
+
         // make new user and asign token
 
         app.put('/user/:email', async (req, res) => {
@@ -86,7 +122,7 @@ async function run() {
 
         // get singel item by id  
 
-        app.get('/item/:id', async (req, res) => {
+        app.get('/item/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
 
             console.log(id)
