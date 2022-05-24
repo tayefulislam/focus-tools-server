@@ -111,7 +111,7 @@ async function run() {
         })
 
 
-        // add / update review 
+        // add or update review 
 
         app.post('/updateReview/:email', async (req, res) => {
             const email = req.params.email;
@@ -123,6 +123,15 @@ async function run() {
             res.send(result);
 
 
+        })
+
+        // get my review by email
+
+        app.get('/myreview/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await reviewCollection.findOne(query);
+            res.send(result)
         })
 
 
