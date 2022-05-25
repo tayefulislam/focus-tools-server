@@ -114,7 +114,7 @@ async function run() {
 
 
         app.get('/users', async (req, res) => {
-            const result = await userCollection.find().toArray();
+            const result = await userCollection.find().sort({ _id: -1 }).toArray();
             res.send(result)
 
         })
@@ -168,7 +168,7 @@ async function run() {
         //get all item 
         app.get('/items', async (req, res) => {
 
-            const result = await itemCollection.find().toArray()
+            const result = await itemCollection.find().sort({ _id: -1 }).toArray()
             res.send(result)
         })
 
@@ -203,7 +203,7 @@ async function run() {
 
         // get all orders
         app.get('/orders', async (req, res) => {
-            const result = await orderCollection.find().toArray()
+            const result = await orderCollection.find().sort({ _id: -1 }).toArray()
             res.send(result)
 
         })
@@ -286,7 +286,7 @@ async function run() {
         app.get('/orders/:email', async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email }
-            const result = await orderCollection.find(query).toArray()
+            const result = await orderCollection.find(query).sort({ _id: -1 }).toArray()
             res.send(result)
         })
 
