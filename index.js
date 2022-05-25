@@ -244,6 +244,10 @@ async function run() {
         })
 
 
+
+
+
+
         // payment 
 
         app.post('/create-payment-intent', async (req, res) => {
@@ -265,6 +269,18 @@ async function run() {
             res.send({ clientSecret: paymentIntent.client_secret })
 
 
+        })
+
+
+
+        //get my profile data 
+
+
+        app.get('/myprofile/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await userCollection.findOne({ userEmail: email })
+            console.log(result)
+            res.send(result)
         })
 
 
