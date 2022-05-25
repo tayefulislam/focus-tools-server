@@ -6,6 +6,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
+
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -168,6 +171,30 @@ async function run() {
             res.send(result)
         })
 
+
+        app.post('/order/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const transactionId = req.body.transactionId
+            console.log(transactionId)
+
+            const fillter = { _id: ObjectId(id) }
+
+            const updateDoc = {
+                $set: {
+                    status: "paid",
+                    transactionId
+
+                },
+            };
+
+
+            const result = await orderCollection.updateOne(fillter, updateDoc)
+            res.send(result)
+        })
+
+
+
         // get orders by email;
 
         app.get('/orders/:email', async (req, res) => {
@@ -217,9 +244,28 @@ async function run() {
         })
 
 
+        // payment 
+
+        app.post('/create-payment-intent', async (req, res) => {
+
+            const item = req.body;
 
 
+            const price = item.price;
+            // const amount = price * 100;
+            const amount = parseInt(price) * 100;
 
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ['card'],
+            });
+
+            res.send({ clientSecret: paymentIntent.client_secret })
+
+
+        })
 
 
     }
