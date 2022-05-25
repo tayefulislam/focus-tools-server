@@ -110,6 +110,16 @@ async function run() {
         })
 
 
+        // get all user 
+
+
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result)
+
+        })
+
+
 
 
         //get all item 
@@ -283,7 +293,7 @@ async function run() {
             res.send(result)
         })
 
-
+        // update profile
 
         app.post('/update/myprofile/:email', async (req, res) => {
 
