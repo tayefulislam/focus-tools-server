@@ -113,7 +113,7 @@ async function run() {
         // get all user 
 
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, async (req, res) => {
             const result = await userCollection.find().sort({ _id: -1 }).toArray();
             res.send(result)
 
@@ -123,7 +123,7 @@ async function run() {
         //make admin 
 
 
-        app.post('/makeAdmin/:email', async (req, res) => {
+        app.post('/makeAdmin/:email', verifyJWT, async (req, res) => {
 
             const email = req.params.email;
 
@@ -144,7 +144,7 @@ async function run() {
         })
 
         // make user
-        app.post('/makeUser/:email', async (req, res) => {
+        app.post('/makeUser/:email', verifyJWT, async (req, res) => {
 
             const email = req.params.email;
 
@@ -176,7 +176,7 @@ async function run() {
 
         // get singel item by id  
 
-        app.get('/item/:id', async (req, res) => {
+        app.get('/item/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
 
             console.log(id)
@@ -188,7 +188,7 @@ async function run() {
         })
 
         // delete item (admin)
-        app.post('/delete/item/:id', async (req, res) => {
+        app.post('/delete/item/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await itemCollection.deleteOne(query);
@@ -199,19 +199,19 @@ async function run() {
 
         // get singel order by id
 
-        app.get('/order/:id', async (req, res) => {
+        app.get('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
 
             console.log(id)
 
-            const query = { itemId: id }
+            const query = { _id: ObjectId(id) }
 
             const result = await orderCollection.findOne(query)
             res.send(result)
         })
 
         // get all orders
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJWT, async (req, res) => {
             const result = await orderCollection.find().sort({ _id: -1 }).toArray()
             res.send(result)
 
@@ -219,7 +219,7 @@ async function run() {
 
         // get orders by id (admin)
 
-        app.post('/order/update/:id', async (req, res) => {
+        app.post('/order/update/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const updateDoc = {
@@ -233,7 +233,7 @@ async function run() {
         })
 
 
-        app.post('/order/delete/:id', async (req, res) => {
+        app.post('/order/delete/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
@@ -245,7 +245,7 @@ async function run() {
         //insert item api
 
 
-        app.put('/additem', async (req, res) => {
+        app.put('/additem', verifyJWT, async (req, res) => {
 
             const item = req.body;
             console.log(item)
@@ -259,7 +259,7 @@ async function run() {
         // place order api
 
 
-        app.post('/order', async (req, res) => {
+        app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body;
 
             const result = await orderCollection.insertOne(order)
@@ -267,24 +267,29 @@ async function run() {
         })
 
 
-        app.post('/order/:id', async (req, res) => {
+        app.post('/placeorder/:id', async (req, res) => {
 
             const id = req.params.id;
             const transactionId = req.body.transactionId
             console.log(transactionId)
 
-            const fillter = { _id: ObjectId(id) }
+
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+
+            // const fillter = { itemId: id }
 
             const updateDoc = {
                 $set: {
                     status: "paid",
                     transactionId
 
+
                 },
             };
 
 
-            const result = await orderCollection.updateOne(fillter, updateDoc)
+            const result = await orderCollection.updateOne(filter, updateDoc, options);
             res.send(result)
         })
 
@@ -292,7 +297,7 @@ async function run() {
 
         // get orders by email;
 
-        app.get('/orders/:email', async (req, res) => {
+        app.get('/orders/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email }
             const result = await orderCollection.find(query).sort({ _id: -1 }).toArray()
@@ -302,7 +307,7 @@ async function run() {
 
         // delete order (user)
 
-        app.post('/order/delete/:id', async (req, res) => {
+        app.post('/order/delete/:id', verifyJWT, async (req, res) => {
 
 
             const id = req.params.id;
@@ -317,9 +322,10 @@ async function run() {
 
         // add or update review 
 
-        app.post('/updateReview/:email', async (req, res) => {
+        app.post('/updateReview/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const review = req.body;
+
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = { $set: review };
@@ -331,7 +337,7 @@ async function run() {
 
         // get my review by email
 
-        app.get('/myreview/:email', async (req, res) => {
+        app.get('/myreview/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const query = { email: email }
             const result = await reviewCollection.findOne(query);
@@ -345,7 +351,7 @@ async function run() {
 
         // payment 
 
-        app.post('/create-payment-intent', async (req, res) => {
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
 
             const item = req.body;
 
@@ -371,7 +377,7 @@ async function run() {
         //get my profile data 
 
 
-        app.get('/myprofile/:email', async (req, res) => {
+        app.get('/myprofile/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const result = await userCollection.findOne({ userEmail: email })
             console.log(result)
@@ -380,7 +386,7 @@ async function run() {
 
         // update profile
 
-        app.post('/update/myprofile/:email', async (req, res) => {
+        app.post('/update/myprofile/:email', verifyJWT, async (req, res) => {
 
             const email = req.params.email;
             const userInfo = req.body;
