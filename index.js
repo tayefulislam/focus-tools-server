@@ -120,6 +120,28 @@ async function run() {
         })
 
 
+        //make admin 
+
+
+        app.post('/makeAdmin/:email', async (req, res) => {
+
+            const email = req.params.email;
+
+            const query = { userEmail: email }
+
+            const updateDoc = {
+                $set: {
+
+                    role: 'admin'
+
+
+                }
+            }
+            const result = await userCollection.updateOne(query, updateDoc);
+            res.send(result)
+
+
+        })
 
 
         //get all item 
