@@ -120,7 +120,7 @@ async function run() {
 
         // get singel item by id  
 
-        app.get('/item/:id', verifyJWT, async (req, res) => {
+        app.get('/item/:id', async (req, res) => {
             const id = req.params.id;
 
             console.log(id)
@@ -128,6 +128,18 @@ async function run() {
             const query = { _id: ObjectId(id) }
 
             const result = await itemCollection.findOne(query)
+            res.send(result)
+        })
+
+
+        app.get('/order/:id', async (req, res) => {
+            const id = req.params.id;
+
+            console.log(id)
+
+            const query = { itemId: id }
+
+            const result = await orderCollection.findOne(query)
             res.send(result)
         })
 
