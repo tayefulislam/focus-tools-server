@@ -142,6 +142,7 @@ async function run() {
 
 
         })
+
         // make user
         app.post('/makeUser/:email', async (req, res) => {
 
@@ -187,6 +188,8 @@ async function run() {
         })
 
 
+        // get singel order by id
+
         app.get('/order/:id', async (req, res) => {
             const id = req.params.id;
 
@@ -195,6 +198,28 @@ async function run() {
             const query = { itemId: id }
 
             const result = await orderCollection.findOne(query)
+            res.send(result)
+        })
+
+        // get all orders
+        app.get('/orders', async (req, res) => {
+            const result = await orderCollection.find().toArray()
+            res.send(result)
+
+        })
+
+        // get orders by id (admin)
+
+        app.post('/order/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    status: "shipped"
+                }
+            }
+            const result = await orderCollection.updateOne(query, updateDoc);
+
             res.send(result)
         })
 
