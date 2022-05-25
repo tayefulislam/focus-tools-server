@@ -142,6 +142,26 @@ async function run() {
 
 
         })
+        // make user
+        app.post('/makeUser/:email', async (req, res) => {
+
+            const email = req.params.email;
+
+            const query = { userEmail: email }
+
+            const updateDoc = {
+                $set: {
+
+                    role: 'user'
+
+
+                }
+            }
+            const result = await userCollection.updateOne(query, updateDoc);
+            res.send(result)
+
+
+        })
 
 
         //get all item 
