@@ -284,6 +284,33 @@ async function run() {
         })
 
 
+
+        app.post('/update/myprofile/:email', async (req, res) => {
+
+            const email = req.params.email;
+            const userInfo = req.body;
+
+            console.log(userInfo)
+
+            const updateDoc = {
+                $set: {
+                    userName: userInfo?.userName,
+                    location: userInfo?.location,
+                    linkendIn: userInfo?.linkendIn,
+                    education: userInfo?.education,
+                },
+            };
+
+            const result = await userCollection.updateOne({ userEmail: email }, updateDoc)
+
+
+            console.log(result)
+            res.send(result)
+        })
+
+
+
+
     }
 
     finally {
