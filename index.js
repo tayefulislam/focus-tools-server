@@ -85,6 +85,7 @@ async function run() {
         const orderCollection = client.db("FocusTools").collection("orders");
         const reviewCollection = client.db("FocusTools").collection("reviews");
         const userCollection = client.db("FocusTools").collection("users");
+        const contactFormCollection = client.db("FocusTools").collection("contactForm");
 
 
         const verifyAdmin = async (req, res, next) => {
@@ -476,6 +477,40 @@ async function run() {
             const result = await orderCollection.find({ status: "shipped" }).project({ status: 1 }).toArray()
             res.send(result)
         })
+
+        //get all reviews
+
+        app.get('/reviews', async (req, res) => {
+            const result = await reviewCollection.find().sort({ _id: -1 }).toArray()
+
+            res.send(result)
+        })
+
+        // track Item 
+
+
+        app.get('/trackItem/:id', async (req, res) => {
+
+            const id = parseInt(req.params.id);
+
+
+            const filter = { trackId: id }
+            const result = await itemCollection.findOne(filter);
+            res.send(result)
+
+        })
+
+
+
+        // contact form
+
+        app.post('/contactForm', async (req, res) => {
+            const message = req.body;
+            const result = await contactFormCollection.insertOne(message)
+            res.send(result)
+        })
+
+
 
 
 
