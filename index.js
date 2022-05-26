@@ -6,6 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
+
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
 
 
@@ -38,13 +39,14 @@ function verifyJWT(req, res, next) {
 
     const token = authentication.split(' ')[1]
 
-    // if (!token) {
+    // console.log(token)
 
-    //     return res.status(401).send('Unauthorized')
+    if (!token) {
+
+        return res.status(401).send('Unauthorized')
 
 
-    // }
-
+    }
 
     jwt.verify(token, process.env.secretKey, function (err, decoded) {
 
@@ -53,13 +55,18 @@ function verifyJWT(req, res, next) {
             return res.status(403).send('Forbidden')
         }
 
+        console.log('decoded form verify', decoded)
+
         req.decoded = decoded
 
-        console.log(decoded)
 
+        // console.log('decode', decoded)
         next()
 
+
     });
+
+
 
 
 }
@@ -79,11 +86,15 @@ async function run() {
 
 
         const verifyAdmin = async (req, res, next) => {
-            const checkEmail = req.decoded.email;
+            const checkEmail = req.decoded;
 
-            const checkRole = await userCollection.findOne({ email: checkEmail })
+            // console.log('decode email', checkEmail)
 
+            const email = checkEmail.userEmail
 
+            const checkRole = await userCollection.findOne({ userEmail: email })
+
+            // console.log('check role', checkRole)
 
             if (checkRole.role === 'admin') {
 
@@ -92,6 +103,8 @@ async function run() {
 
             else {
                 res.status(403).send({ message: 'Forbiden' })
+
+
             }
 
 
@@ -179,7 +192,7 @@ async function run() {
         })
 
         // make user
-        app.post('/makeUser/:email', verifyJWT, async (req, res) => {
+        app.post('/makeUser/:email', verifyJWT, verifyAdmin, async (req, res) => {
 
             const email = req.params.email;
 
@@ -223,7 +236,7 @@ async function run() {
         })
 
         // delete item (admin)
-        app.post('/delete/item/:id', verifyJWT, async (req, res) => {
+        app.post('/delete/item/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await itemCollection.deleteOne(query);
@@ -246,7 +259,7 @@ async function run() {
         })
 
         // get all orders
-        app.get('/orders', verifyJWT, async (req, res) => {
+        app.get('/orders', verifyJWT, verifyAdmin, async (req, res) => {
             const result = await orderCollection.find().sort({ _id: -1 }).toArray()
             res.send(result)
 
@@ -254,7 +267,7 @@ async function run() {
 
         // get orders by id (admin)
 
-        app.post('/order/update/:id', verifyJWT, async (req, res) => {
+        app.post('/order/update/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const updateDoc = {
@@ -268,7 +281,7 @@ async function run() {
         })
 
 
-        app.post('/order/delete/:id', verifyJWT, async (req, res) => {
+        app.post('/order/delete/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
@@ -280,7 +293,7 @@ async function run() {
         //insert item api
 
 
-        app.put('/additem', verifyJWT, async (req, res) => {
+        app.put('/additem', verifyJWT, verifyAdmin, async (req, res) => {
 
             const item = req.body;
             console.log(item)
@@ -302,11 +315,12 @@ async function run() {
         })
 
 
-        app.post('/placeorder/:id', async (req, res) => {
+        app.post('/placeorder/:id', verifyJWT, async (req, res) => {
 
             const id = req.params.id;
-            const transactionId = req.body.transactionId
-            console.log(transactionId)
+            console.log(id)
+            const transactionId = req.body.transactionId;
+            console.log('transtion', transactionId)
 
 
             const filter = { _id: ObjectId(id) }
@@ -330,7 +344,7 @@ async function run() {
 
 
 
-        // get orders by email;
+        // get orders by email; (user)
 
         app.get('/orders/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
@@ -355,7 +369,7 @@ async function run() {
         })
 
 
-        // add or update review 
+        // add or update review  (user)
 
         app.post('/updateReview/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
@@ -391,7 +405,8 @@ async function run() {
             const item = req.body;
 
 
-            const price = item.price;
+            const price = item.price || 1;
+
             // const amount = price * 100;
             const amount = parseInt(price) * 100;
 
