@@ -37,6 +37,8 @@ function verifyJWT(req, res, next) {
 
     const authentication = req.headers.authentication;
 
+    // console.log(req.headers)
+
     const token = authentication.split(' ')[1]
 
     // console.log(token)
@@ -315,30 +317,29 @@ async function run() {
         })
 
 
-        app.post('/placeorder/:id', verifyJWT, async (req, res) => {
+
+
+
+
+
+
+        // update paid status
+        app.post('/placeorder/:id', async (req, res) => {
 
             const id = req.params.id;
             console.log(id)
             const transactionId = req.body.transactionId;
             console.log('transtion', transactionId)
-
-
             const filter = { _id: ObjectId(id) }
-            const options = { upsert: true };
-
-            // const fillter = { itemId: id }
 
             const updateDoc = {
                 $set: {
                     status: "paid",
                     transactionId
-
-
                 },
             };
 
-
-            const result = await orderCollection.updateOne(filter, updateDoc, options);
+            const result = await orderCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
 
@@ -458,6 +459,21 @@ async function run() {
             console.log(result)
             res.send(result)
         })
+
+
+        // total Order 
+
+        app.get('/totalOrder', async (req, res) => {
+
+            const result = await orderCollection.find().project({ _id: 1 }).toArray()
+            res.send(result)
+        })
+
+
+
+
+
+
 
 
 
