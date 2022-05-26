@@ -78,6 +78,39 @@ async function run() {
         const userCollection = client.db("FocusTools").collection("users");
 
 
+        const verifyAdmin = async (req, res, next) => {
+            const checkEmail = req.decoded.email;
+
+            const checkRole = await userCollection.findOne({ email: checkEmail })
+
+
+
+            if (checkRole.role === 'admin') {
+
+                next()
+            }
+
+            else {
+                res.status(403).send({ message: 'Forbiden' })
+            }
+
+
+
+        }
+
+        // check admin
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ userEmail: email })
+            const isAdmin = user.role === 'admin';
+
+
+            res.send({ isAdmin: isAdmin })
+
+        })
+
+
 
 
 
@@ -125,7 +158,7 @@ async function run() {
         //make admin 
 
 
-        app.post('/makeAdmin/:email', verifyJWT, async (req, res) => {
+        app.post('/makeAdmin/:email', verifyJWT, verifyAdmin, async (req, res) => {
 
             const email = req.params.email;
 
