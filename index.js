@@ -15,7 +15,14 @@ const port = process.env.PORT || 5000;
 
 //middleware
 
-app.use(cors())
+
+const corsConfig = {
+    origin: true,
+    credentials: true
+}
+app.use(cors(corsConfig))
+app.options('*', cors(corsConfig))
+
 app.use(express.json())
 
 // console.log(process.env)
