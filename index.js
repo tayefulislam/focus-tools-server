@@ -469,6 +469,13 @@ async function run() {
             res.send(result)
         })
 
+        // get total Shipped status
+
+        app.get('/totalShipped', async (req, res) => {
+
+            const result = await orderCollection.find({ status: "shipped" }).project({ status: 1 }).toArray()
+            res.send(result)
+        })
 
 
 
