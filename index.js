@@ -86,6 +86,7 @@ async function run() {
         const reviewCollection = client.db("FocusTools").collection("reviews");
         const userCollection = client.db("FocusTools").collection("users");
         const contactFormCollection = client.db("FocusTools").collection("contactForm");
+        const blogCollection = client.db("FocusTools").collection("blogs");
 
 
         const verifyAdmin = async (req, res, next) => {
@@ -509,6 +510,22 @@ async function run() {
             const result = await contactFormCollection.insertOne(message)
             res.send(result)
         })
+
+
+        // extra 
+
+        // publish blog
+
+        app.post('/newBlog', async (req, res) => {
+            const newBlog = req.body;
+            const result = await blogCollection.insertOne(newBlog)
+            res.send(result)
+        })
+
+
+
+
+
 
 
 
